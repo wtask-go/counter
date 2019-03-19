@@ -15,10 +15,10 @@ const (
 // You should use NewCyclicIncrementor() to create counter, but also can create counter like this:
 //	c := &counter.CyclicIncrementor{}
 // But in that case, counter is not operational until its maximum value will be set:
-//	c.SetMaxValue(max)
-// Also note, if counter is declared as pointer:
+//	err := c.SetMaxValue(max)
+// Also note, if counter is only declared as pointer:
 //	var c *CyclicIncrementor
-// and is not really initialized, it silently ignores all calls for it methods without errors and cannot be used.
+// it is not really initialized and it cannot be used at this point.
 type CyclicIncrementor struct {
 	mx    sync.RWMutex // for value and max
 	value int
@@ -27,9 +27,6 @@ type CyclicIncrementor struct {
 
 // GetValue - return counter value
 func (c *CyclicIncrementor) GetValue() int {
-	if c == nil {
-		return 0
-	}
 	c.mx.RLock()
 	defer c.mx.RUnlock()
 	return c.value
@@ -37,9 +34,6 @@ func (c *CyclicIncrementor) GetValue() int {
 
 // Inc - increment by 1 current value of counter. When value is reached max, counter will reset into zero.
 func (c *CyclicIncrementor) Inc() {
-	if c == nil {
-		return
-	}
 	c.mx.Lock()
 	if c.value < c.max {
 		c.value++
@@ -50,12 +44,10 @@ func (c *CyclicIncrementor) Inc() {
 }
 
 // SetMaxValue - change max allowed value for counter.
+// Only positive integers allowed to set max value.
 func (c *CyclicIncrementor) SetMaxValue(max int) error {
 	if max < 0 {
 		return fmt.Errorf("counter.CyclicIncrementor: invalid max value (%d)", max)
-	}
-	if c == nil {
-		return nil
 	}
 	c.mx.Lock()
 	if c.value > max {
