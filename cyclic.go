@@ -10,7 +10,7 @@ const (
 	MaxInt = int(^uint(0) >> 1)
 )
 
-// CyclicIncrementor - step by step counter with limit of its maximum value.
+// CyclicIncrementor - step-by-step counter with limitation of its maximum value.
 // After maximum is reached counter will reset into zero.
 // You should use NewCyclicIncrementor() to create counter, but also can create counter like this:
 //	c := &counter.CyclicIncrementor{}
