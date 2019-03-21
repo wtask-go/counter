@@ -105,21 +105,21 @@ func TestCyclicIncrementorRWConcurrency(t *testing.T) {
 
 	c, _ := NewCyclicIncrementor()
 
-	numWriters := 5
-	numIncrementsPerWriter := 10
-	expectedValue := numWriters * numIncrementsPerWriter
+	numWriters := 4
+	numOps := 100
+	expectedValue := numWriters * numOps
 	wg := sync.WaitGroup{}
 	wg.Add(numWriters * 2)
 	// if race will be detected test will fail
 	// with single core the test will not ever fail
 	for i := 0; i < numWriters; i++ {
 		go func() {
-			write(c, numIncrementsPerWriter)
+			write(c, numOps)
 			wg.Done()
 		}()
 		// also run concurrent reads
 		go func() {
-			read(c, 20)
+			read(c, numOps)
 			wg.Done()
 		}()
 	}
