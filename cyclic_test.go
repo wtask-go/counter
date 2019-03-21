@@ -91,14 +91,14 @@ func TestCyclicIncrementorRWConcurrency(t *testing.T) {
 
 	read := func(c *CyclicIncrementor, times int) {
 		for i := 0; i < times; i++ {
-			// read without sleeping to reach a possible race
+			// read without sleeping to reach a possible race on multi-core systems
 			c.GetValue()
 		}
 	}
 
 	write := func(c *CyclicIncrementor, times int) {
 		for i := 0; i < times; i++ {
-			// write without sleeping to reach a possible race
+			// write without sleeping to reach a possible race on multi-core systems
 			c.Inc()
 		}
 	}
