@@ -1,10 +1,8 @@
 package counter
 
 import (
-	"math/rand"
 	"sync"
 	"testing"
-	"time"
 )
 
 func TestUninitialized(t *testing.T) {
@@ -93,15 +91,15 @@ func TestCyclicIncrementorRWConcurrency(t *testing.T) {
 
 	read := func(c *CyclicIncrementor, times int) {
 		for i := 0; i < times; i++ {
+			// read without sleeping to reach a possible race
 			c.GetValue()
-			randomSleep(0, 100*time.Millisecond)
 		}
 	}
 
 	write := func(c *CyclicIncrementor, times int) {
 		for i := 0; i < times; i++ {
+			// write without sleeping to reach a possible race
 			c.Inc()
-			randomSleep(0, 100*time.Millisecond)
 		}
 	}
 
@@ -113,6 +111,7 @@ func TestCyclicIncrementorRWConcurrency(t *testing.T) {
 	wg := sync.WaitGroup{}
 	wg.Add(numWriters * 2)
 	// if race will be detected test will fail
+	// with single core the test will not ever fail
 	for i := 0; i < numWriters; i++ {
 		go func() {
 			write(c, numIncrementsPerWriter)
@@ -129,12 +128,4 @@ func TestCyclicIncrementorRWConcurrency(t *testing.T) {
 	if c.GetValue() != expectedValue {
 		t.Errorf("Unexpected counter value (%d)", c.GetValue())
 	}
-}
-
-func randomSleep(min, max time.Duration) {
-	if min > max {
-		min, max = max, min
-	}
-	r := rand.Int63n(int64(max - min))
-	time.Sleep(time.Duration(r) + min)
 }
